@@ -7,6 +7,9 @@
   const menuEl = document.getElementById('menu');
   const detailEl = document.getElementById('detail');
   const breadcrumbEl = document.getElementById('breadcrumb');
+  const sidebarEl = document.getElementById('sidebar');
+  const mobileToggleEl = document.getElementById('mobile-menu-toggle');
+  const mobileOverlayEl = document.getElementById('mobile-overlay');
 
   function normalizarATextoBasico(texto) {
     return (texto || '')
@@ -90,6 +93,10 @@
       a.href = '#/' + modulo._slug + '/' + dist._slug;
       a.textContent = dist.titulo || dist.nombre || 'Distinción';
       a.dataset.route = modulo._slug + '/' + dist._slug;
+      
+      // Cerrar menú móvil al hacer click en un enlace
+      a.addEventListener('click', cerrarMenuMovil);
+      
       li.appendChild(a);
       ul.appendChild(li);
     });
@@ -125,7 +132,10 @@
     
     button.appendChild(header);
     button.appendChild(content);
-    button.addEventListener('click', abrirQuiz);
+    button.addEventListener('click', () => {
+      cerrarMenuMovil();
+      abrirQuiz();
+    });
     return button;
   }
 
@@ -256,6 +266,43 @@
     });
   }
 
+  // Funciones del menú móvil
+  function abrirMenuMovil() {
+    sidebarEl.classList.add('show');
+    mobileOverlayEl.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function cerrarMenuMovil() {
+    sidebarEl.classList.remove('show');
+    mobileOverlayEl.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function inicializarMenuMovil() {
+    if (mobileToggleEl) {
+      mobileToggleEl.addEventListener('click', abrirMenuMovil);
+    }
+    
+    if (mobileOverlayEl) {
+      mobileOverlayEl.addEventListener('click', cerrarMenuMovil);
+    }
+
+    // Cerrar menú al cambiar tamaño de pantalla
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        cerrarMenuMovil();
+      }
+    });
+
+    // Cerrar menú con tecla Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        cerrarMenuMovil();
+      }
+    });
+  }
+
   function abrirQuiz() {
     if (todasLasPreguntas.length === 0) {
       alert('No hay preguntas disponibles para el quiz.');
@@ -355,6 +402,9 @@
   }
 
   function navegarSegunHash() {
+    // Cerrar menú móvil al navegar
+    cerrarMenuMovil();
+    
     const { modulo, dist } = parsearHash();
     if (!modulo || !dist) {
       renderizarDistincion(null, null);
@@ -553,6 +603,9 @@
   }
 
   function iniciar() {
+    // Inicializar menú móvil
+    inicializarMenuMovil();
+    
     const esFile = location.protocol === 'file:';
     if (intentarCargarHTML() || intentarCargarEmbedJSON() || intentarCargarMarkdown()) return;
 
