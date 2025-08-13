@@ -1,0 +1,385 @@
+/* Tipografía y colores base */
+:root {
+  --text: #202122;
+  --muted: #54595d;
+  --border: #eaecf0;
+  --link: #0645ad;
+  --link-visited: #0b0080;
+  --link-hover: #3366cc;
+  --bg: #ffffff;
+  --sidebar-bg: #fafafa;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--bg);
+  font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--sidebar-bg);
+  padding: 0;
+  overflow-y: auto;
+}
+
+.brand {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: white;
+}
+
+.brand-link {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.menu { padding: 12px 0; }
+
+.menu ul { list-style: none; margin: 0; padding: 0; }
+
+.module {
+  margin: 0 0 8px 0;
+}
+
+.module-header {
+  padding: 8px 20px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.module-header:hover {
+  background: #f0f0f0;
+}
+
+.module-title {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+}
+
+.module-toggle {
+  font-size: 12px;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+}
+
+.module-toggle.collapsed {
+  transform: rotate(-90deg);
+}
+
+.dist-list { 
+  margin: 0; 
+  padding: 0; 
+  background: white;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.dist-list.collapsed {
+  max-height: 0;
+  border-bottom: none;
+}
+
+.dist-list:not(.collapsed) {
+  max-height: 500px;
+}
+
+.menu li { margin: 0; }
+
+.menu .dist-list a {
+  color: var(--link);
+  text-decoration: none;
+  display: block;
+  padding: 6px 20px 6px 40px;
+  font-size: 13px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.menu .dist-list a:hover { 
+  background: #f8f9fa;
+  text-decoration: none;
+}
+
+.menu .dist-list a:visited { color: var(--link-visited); }
+
+.menu .dist-list a.active {
+  background: #eef7ff;
+  color: var(--link);
+  border-left: 3px solid var(--link);
+  padding-left: 37px;
+}
+
+.dist-list li:last-child a {
+  border-bottom: none;
+}
+
+/* Quiz button */
+.quiz-button {
+  margin: 12px 8px 8px 8px;
+  padding: 0;
+  cursor: pointer;
+  background: #f8f9fa;
+  border: 1px solid #a2a9b1;
+  border-radius: 2px;
+  font-size: 13px;
+  user-select: none;
+}
+
+.quiz-button-header {
+  padding: 8px 12px;
+  background: #eaecf0;
+  border-bottom: 1px solid #a2a9b1;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.quiz-button-content {
+  padding: 8px 12px;
+  color: var(--link);
+}
+
+.quiz-button:hover {
+  background: #f0f0f0;
+}
+
+.quiz-button:hover .quiz-button-content {
+  text-decoration: underline;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: white;
+  border: 1px solid #a2a9b1;
+  border-radius: 2px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.modal-overlay.show .modal {
+  transform: scale(1);
+}
+
+.modal-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #a2a9b1;
+  background: #eaecf0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 4px 6px;
+  border-radius: 2px;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: #f0f0f0;
+}
+
+.modal-body {
+  padding: 20px;
+  background: white;
+}
+
+.quiz-question {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.quiz-title {
+  font-size: 12px;
+  font-weight: normal;
+  color: #72777d;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.quiz-answer {
+  background: #f8f9fa;
+  border: 1px solid #eaecf0;
+  border-radius: 2px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: none;
+  font-size: 14px;
+}
+
+.quiz-answer.show {
+  display: block;
+}
+
+.quiz-answer p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.quiz-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn {
+  background: #f8f9fa;
+  color: var(--text);
+  border: 1px solid #a2a9b1;
+  padding: 6px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: normal;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: #e9ecef;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: #0645ad;
+  color: white;
+  border-color: #0645ad;
+}
+
+.btn-primary:hover {
+  background: #0b50c7;
+  border-color: #0b50c7;
+}
+
+/* Contenido */
+.content {
+  padding: 24px;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.breadcrumb {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.breadcrumb a { color: var(--link); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+
+.detail {
+  flex: 1;
+}
+
+.detail h1 {
+  font-size: 28px;
+  margin: 10px 0 14px 0;
+  font-weight: 700;
+}
+
+.qa-item { margin: 18px 0; }
+.qa-item h3 { font-size: 18px; margin: 0 0 6px 0; }
+.qa-item p { margin: 0; white-space: pre-wrap; }
+
+.detail ol, .detail ul { margin: 8px 0 12px 22px; }
+.detail li { margin: 4px 0; }
+
+/* Estilo de listas convertidas: marcador con punto medio */
+.detail ol.list-enum { list-style: none; counter-reset: item; padding-left: 0; margin-left: 0; }
+.detail ol.list-enum > li { counter-increment: item; margin-left: 0; position: relative; padding-left: 22px; }
+.detail ol.list-enum > li::before {
+  content: "· " counter(item) "."; /* punto medio + número + punto */
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+.muted { color: var(--muted); }
+
+.placeholder {
+  padding: 24px 0;
+  color: var(--muted);
+}
+
+/* Footer */
+.footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+} 
