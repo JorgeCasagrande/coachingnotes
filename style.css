@@ -317,6 +317,16 @@ body {
   white-space: pre-wrap;
 }
 
+/* Viñetas en el modal del quiz */
+.quiz-answer ol { list-style: none; padding-left: 0; margin: 8px 0; }
+.quiz-answer ol li { position: relative; padding-left: 22px; margin: 4px 0; }
+.quiz-answer ol li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+}
+
 .quiz-buttons {
   display: flex;
   gap: 8px;
@@ -387,11 +397,11 @@ body {
 .detail ol, .detail ul { margin: 8px 0 12px 22px; }
 .detail li { margin: 4px 0; }
 
-/* Estilo de listas convertidas: marcador con punto medio */
+/* Estilo de listas convertidas: solo viñetas (puntos) */
 .detail ol.list-enum { list-style: none; counter-reset: item; padding-left: 0; margin-left: 0; }
 .detail ol.list-enum > li { counter-increment: item; margin-left: 0; position: relative; padding-left: 22px; }
 .detail ol.list-enum > li::before {
-  content: "· " counter(item) "."; /* punto medio + número + punto */
+  content: "•"; /* solo viñeta */
   position: absolute;
   left: 0;
   color: var(--muted);

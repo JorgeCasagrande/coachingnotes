@@ -179,7 +179,7 @@
     
     // Primero intentar detectar enumeración en líneas separadas
     const lineas = texto.split(/\r?\n/).filter((l) => l.trim() !== '');
-    const patron = /^(\d+\)\s*|\d+\.\s*|\d+\s+|\-\s+)/;
+    const patron = /^(\d+\)\s*|\d+\.\s*|\d+\s+|\-\s+|•\s*)/;
     const esEnumeracionLineas = lineas.length > 1 && lineas.every((l) => patron.test(l.trim()));
     
     if (esEnumeracionLineas) {
@@ -203,6 +203,24 @@
       ol.className = 'list-enum';
       matches.forEach((match) => {
         const limpio = match[1].replace(/^\d+\)\s*/, '').trim();
+        if (limpio) {
+          const li = document.createElement('li');
+          li.textContent = limpio;
+          ol.appendChild(li);
+        }
+      });
+      return ol;
+    }
+    
+    // Intentar detectar viñetas en una sola línea con formato "• ... • ... • ..."
+    const patronViñetas = /(•\s*[^•]+?)(?=•|$)/g;
+    const matchesViñetas = Array.from(texto.matchAll(patronViñetas));
+    
+    if (matchesViñetas.length > 1) {
+      const ol = document.createElement('ol');
+      ol.className = 'list-enum';
+      matchesViñetas.forEach((match) => {
+        const limpio = match[1].replace(/^•\s*/, '').trim();
         if (limpio) {
           const li = document.createElement('li');
           li.textContent = limpio;
@@ -249,13 +267,26 @@
       h3.textContent = item.pregunta || item.q || ('Pregunta ' + (idx + 1));
       cont.appendChild(h3);
 
-      const p = document.createElement('p');
-      const nodo = respuestaATextoONodo(item.respuesta || item.a || '');
-      if (nodo.nodeType === Node.TEXT_NODE) {
-        p.appendChild(nodo);
-        cont.appendChild(p);
+      const respuesta = item.respuesta || item.a || '';
+      
+      // Si la respuesta contiene HTML (como <p><strong>R:</strong>...), procesarla como HTML
+      if (respuesta.includes('<p><strong>R:</strong>') || respuesta.includes('<h4>')) {
+        const divRespuesta = document.createElement('div');
+        divRespuesta.innerHTML = respuesta;
+        
+        // Para respuestas complejas, no agregamos ningún wrapper adicional
+        // ya que el contenido HTML ya incluye toda la estructura necesaria
+        cont.appendChild(divRespuesta);
       } else {
-        cont.appendChild(nodo);
+        // Procesar como texto plano (comportamiento original)
+        const p = document.createElement('p');
+        const nodo = respuestaATextoONodo(respuesta);
+        if (nodo.nodeType === Node.TEXT_NODE) {
+          p.appendChild(nodo);
+          cont.appendChild(p);
+        } else {
+          cont.appendChild(nodo);
+        }
       }
 
       detailEl.appendChild(cont);
@@ -359,7 +390,7 @@
       <div class="quiz-title">${preguntaData.modulo} - ${preguntaData.distincion}</div>
       <div class="quiz-question">${preguntaData.pregunta}</div>
       <div class="quiz-answer" id="quiz-answer">
-        ${preguntaData.respuesta.includes('\n') || /^\d+\)/.test(preguntaData.respuesta) 
+        ${preguntaData.respuesta.includes('\n') || /^\d+\)/.test(preguntaData.respuesta) || preguntaData.respuesta.includes('•')
           ? crearRespuestaFormateada(preguntaData.respuesta)
           : `<p>${preguntaData.respuesta}</p>`}
       </div>
@@ -377,10 +408,94 @@
     document.getElementById('next-question').addEventListener('click', mostrarPreguntaAleatoria);
   }
 
+  function respuestaParaQuiz(respuesta) {
+    const texto = (respuesta || '').trim();
+    if (!texto) return document.createTextNode('');
+    
+    // Para el quiz, convertimos viñetas directamente a numeración en el HTML
+    
+    // Primero intentar detectar viñetas separadas por <br>
+    if (texto.includes('<br>') && texto.includes('•')) {
+      debugger;
+      const partes = texto.split(/<br\s*\/?>/i);
+      const patronViñetas = /^•\s*/;
+      const tieneViñetas = partes.some(parte => patronViñetas.test(parte.trim()));
+      
+      if (tieneViñetas) {
+        const ol = document.createElement('ol');
+        ol.className = 'list-enum';
+        partes.forEach((parte) => {
+          const parteLimpia = parte.trim();
+          if (patronViñetas.test(parteLimpia)) {
+            const contenido = parteLimpia.replace(patronViñetas, '').trim();
+            if (contenido) {
+              const li = document.createElement('li');
+              li.textContent = contenido;
+              ol.appendChild(li);
+            }
+          }
+        });
+        if (ol.children.length > 0) return ol;
+      }
+    }
+    
+    // Intentar detectar viñetas en líneas separadas por \n
+    const lineas = texto.split(/\r?\n/).filter((l) => l.trim() !== '');
+    const patronViñetas = /^•\s*/;
+    const esViñetasLineas = lineas.length > 1 && lineas.every((l) => patronViñetas.test(l.trim()));
+    
+    if (esViñetasLineas) {
+      const ol = document.createElement('ol');
+      ol.className = 'list-enum';
+      lineas.forEach((l) => {
+        const limpio = l.trim().replace(patronViñetas, '');
+        const li = document.createElement('li');
+        li.textContent = limpio;
+        ol.appendChild(li);
+      });
+      return ol;
+    }
+    
+    // Intentar detectar viñetas en una sola línea con formato "• ... • ... • ..."
+    const patronInlineViñetas = /(•\s*[^•]+?)(?=•|$)/g;
+    const matchesViñetas = Array.from(texto.matchAll(patronInlineViñetas));
+    
+    if (matchesViñetas.length > 1) {
+      const ol = document.createElement('ol');
+      ol.className = 'list-enum';
+      matchesViñetas.forEach((match) => {
+        const limpio = match[1].replace(/^•\s*/, '').trim();
+        if (limpio) {
+          const li = document.createElement('li');
+          li.textContent = limpio;
+          ol.appendChild(li);
+        }
+      });
+      return ol;
+    }
+    
+    // Si no hay viñetas, usar la función original
+    return respuestaATextoONodo(texto);
+  }
+
   function crearRespuestaFormateada(respuesta) {
-    const nodo = respuestaATextoONodo(respuesta);
+    // Hacer trim a la respuesta
+    let respuestaLimpia = (respuesta || '').trim();
+    if(respuestaLimpia.includes('•')){
+      debugger;
+    }
+    
+    // Si contiene HTML complejo, procesarlo directamente
+    if (respuestaLimpia.includes('<h4>') || respuestaLimpia.includes('<p><strong>R:</strong>')) {
+      debugger;
+      return respuestaLimpia;
+    }
+    
+    // Para texto simple, usar la función específica del quiz
+    const nodo = respuestaParaQuiz(respuestaLimpia);
+    
     if (nodo.nodeType === Node.TEXT_NODE) {
-      return `<p>${respuesta}</p>`;
+      return `<p>${respuestaLimpia}</p>`;
     } else {
       return nodo.outerHTML;
     }
@@ -534,7 +649,7 @@
   }
 
   function parsearHTMLEmbebido(container) {
-    const elementos = Array.from(container.querySelectorAll('h2, h3, p, hr'));
+    const elementos = Array.from(container.querySelectorAll('h2, h3, p, div.respuesta, hr'));
     const modulos = [];
     let moduloActual = null;
     let distActual = null;
@@ -564,6 +679,14 @@
       if (!qaActual.respuesta) qaActual.respuesta = toAdd; else qaActual.respuesta += (qaActual.respuesta.endsWith('\n') ? '' : '\n') + toAdd;
     }
 
+    function procesarRespuestaCompleja(divRespuesta) {
+      if (!qaActual) return;
+      
+      // Capturar todo el contenido HTML de la respuesta tal como está
+      // No necesitamos quitar la "R:" porque el HTML ya está correctamente formateado
+      qaActual.respuesta = divRespuesta.innerHTML;
+    }
+
     elementos.forEach((el) => {
       if (el.tagName === 'H2') {
         iniciarModulo(el.textContent);
@@ -571,6 +694,10 @@
       }
       if (el.tagName === 'H3') {
         iniciarDistincion(el.textContent);
+        return;
+      }
+      if (el.tagName === 'DIV' && el.classList.contains('respuesta')) {
+        procesarRespuestaCompleja(el);
         return;
       }
       if (el.tagName === 'P') {
