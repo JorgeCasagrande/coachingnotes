@@ -397,15 +397,49 @@ body {
 .detail ol, .detail ul { margin: 8px 0 12px 22px; }
 .detail li { margin: 4px 0; }
 
-/* Estilo de listas convertidas: solo viñetas (puntos) */
-.detail ol.list-enum { list-style: none; counter-reset: item; padding-left: 0; margin-left: 0; }
-.detail ol.list-enum > li { counter-increment: item; margin-left: 0; position: relative; padding-left: 22px; }
-.detail ol.list-enum > li::before {
-  content: "•"; /* solo viñeta */
+/* Estilo de listas con viñetas */
+.detail ol.list-bullet, .quiz-answer ol.list-bullet { 
+  list-style: none; 
+  counter-reset: item; 
+  padding-left: 0; 
+  margin: 8px 0; 
+}
+.detail ol.list-bullet > li, .quiz-answer ol.list-bullet > li { 
+  counter-increment: item; 
+  margin-left: 0; 
+  position: relative; 
+  padding-left: 22px; 
+  margin: 4px 0;
+}
+.detail ol.list-bullet > li::before, .quiz-answer ol.list-bullet > li::before {
+  content: "•";
   position: absolute;
   left: 0;
   color: var(--muted);
 }
+
+/* Estilo de listas numeradas */
+.detail ol.list-enum, .quiz-answer ol.list-enum { 
+  list-style: none; 
+  counter-reset: item; 
+  padding-left: 0; 
+  margin: 8px 0; 
+}
+.detail ol.list-enum > li, .quiz-answer ol.list-enum > li { 
+  counter-increment: item; 
+  margin-left: 0; 
+  position: relative; 
+  padding-left: 22px; 
+  margin: 4px 0;
+}
+.detail ol.list-enum > li::before, .quiz-answer ol.list-enum > li::before {
+  content: counter(item) ".";
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+}
+
+
 
 hr {
   border: 0;

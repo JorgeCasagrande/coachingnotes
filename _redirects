@@ -1,4 +1,4 @@
 # Redirects para Netlify
 # Como usamos hash routing, todas las rutas deben servir index.html
-
+ 
 /*    /index.html   200 
